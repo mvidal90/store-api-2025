@@ -1,18 +1,40 @@
 import express from "express"
-import { body } from "express-validator"
+import { body, param } from "express-validator"
 
-import { createProduct, getProducts } from "../controllers/productsController.js"
+import { createProduct, deleteById, editById, editOrCreate, getProductById, getProducts } from "../controllers/productsController.js"
 import { validationErrorResponse } from "../middlewares/validateResponse.js"
 
 const route = express.Router()
 
 route
     .get("/", getProducts)
+    .get("/byId/:id", [
+        param("id").isMongoId().withMessage("El ID es incorrecto."),
+        validationErrorResponse
+    ], getProductById)
     .post("/", [
         body("name").isString().isLength({ min: 1 }).withMessage("El nombre es requerido."),
         body("amount").isFloat({ gt: 0 }).withMessage("El monto es requerido."),
         body("brand").isString().isLength({ min: 1 }).withMessage("La marca es requerida."),
         validationErrorResponse
     ], createProduct)
+    .patch(
+        "/edit/:id", [
+            param("id").isMongoId().withMessage("El ID es incorrecto."),
+            validationErrorResponse
+        ],
+        editById
+    )
+    .put("/", [
+        body("name").isString().isLength({ min: 1 }).withMessage("El nombre es requerido."),
+        body("amount").isFloat({ gt: 0 }).withMessage("El monto es requerido."),
+        body("brand").isString().isLength({ min: 1 }).withMessage("La marca es requerida."),
+        validationErrorResponse
+    ], editOrCreate)
+    .delete("/delete/:id", [
+        param("id").isMongoId().withMessage("El ID es incorrecto."),
+        validationErrorResponse
+    ],
+    deleteById)
 
 export default route
