@@ -2,8 +2,12 @@ import { Product } from "../models/Products.js"
 
 
 export const getProducts = async (req, res) => {
+    const { name } = req.query
     try {
-        const prods = await Product.find()
+
+        const query = name ? { name: new RegExp(name, "i") } : undefined
+
+        const prods = await Product.find(query)
 
         res.json({
             ok: true,
